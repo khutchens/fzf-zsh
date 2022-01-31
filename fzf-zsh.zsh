@@ -46,11 +46,11 @@ function fzf_zsh__cd_history() {
 }
 
 function fzf_zsh__edit() {
-    fzf +m --select-1 --exit-0 | xargs -o $EDITOR
+    fzf -m --select-1 --exit-0 | xargs -o $EDITOR
 }
 
 function fzf_zsh__exec_history() {
-    local cmd=$(fc -l -1000 | fzf -m +s --tac | sed 's/ *[0-9]* *//')
+    local cmd=$(fc -l -1000 | fzf +m +s --tac | sed 's/ *[0-9]* *//')
     if [ -n $cmd ]; then
         print -s $cmd
         eval $cmd
