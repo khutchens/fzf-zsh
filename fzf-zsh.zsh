@@ -23,26 +23,23 @@ function _fzf_zsh__list_parents() {
 
 function fzf_zsh__cd() {
     local dir=$(${=FZF_ZSH__FIND_CMD} -type d 2> /dev/null | fzf +m)
-    if [ $? -ne 0 ]; then
-        return
+    if [[ -n $dir ]]; then
+        cd $dir
     fi
-    cd $dir
 }
 
 function fzf_zsh__cd_upward() {
     local dir=$(_fzf_zsh__list_parents | fzf +m)
-    if [ $? -ne 0 ]; then
-        return
+    if [[ -n $dir ]]; then
+        cd $dir
     fi
-    cd $dir
 }
 
 function fzf_zsh__cd_history() {
     local dir=$(cdr -l | awk '{print $2}' | fzf +m)
-    if [ $? -ne 0 ]; then
-        return
+    if [[ -n $dir ]]; then
+        cd $dir
     fi
-    cd $dir
 }
 
 function fzf_zsh__edit() {
