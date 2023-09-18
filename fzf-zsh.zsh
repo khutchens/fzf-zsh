@@ -11,7 +11,7 @@ function fzf_zsh__find_cmd() {
         ignore=''
         if [[ -f $ignorefile ]]; then
             for line in $(cat $ignorefile); do
-                ignore+=" -exclude -path $line"
+                ignore+=" -exclude -path '$line'"
             done
         fi
         eval "bfs -type $ftype -follow -maxdepth 12 $ignore 2>/dev/null"
