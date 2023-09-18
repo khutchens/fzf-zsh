@@ -4,9 +4,21 @@ add-zsh-hook chpwd chpwd_recent_dirs
 
 zstyle ':chpwd:*' recent-dirs-max 32
 
-if [[ ! -n $FZF_ZSH__FIND_CMD ]]; then
-    FZF_ZSH__FIND_CMD='find .'
-fi
+function fzf_zsh__find_cmd() {
+    ftype=${ftype:='f'}
+    if (( $+commands[bfs] )); then
+        ignorefile='.fzfignore'
+        ignore=''
+        if [[ -f $ignorefile ]]; then
+            for line in $(cat $ignorefile); do
+                ignore+=" -exclude -path $line"
+            done
+        fi
+        eval "bfs -type $ftype -follow -maxdepth 12 $ignore 2>/dev/null"
+    else
+        eval "find ."
+    fi
+}
 
 function _fzf_zsh__list_parents() {
     while true
@@ -22,7 +34,7 @@ function _fzf_zsh__list_parents() {
 }
 
 function fzf_zsh__cd() {
-    local dir=$(${=FZF_ZSH__FIND_CMD} -type d 2> /dev/null | fzf +m)
+    local dir=$(ftype=d fzf_zsh__find_cmd | fzf +m --scheme=path)
     if [[ -n $dir ]]; then
         cd $dir
     fi
@@ -36,18 +48,18 @@ function fzf_zsh__cd_upward() {
 }
 
 function fzf_zsh__cd_history() {
-    local dir=$(cdr -l | awk '{print $2}' | fzf +m)
+    local dir=$(cdr -l | awk '{print $2}' | fzf +m --scheme=path)
     if [[ -n $dir ]]; then
         cd $dir
     fi
 }
 
 function fzf_zsh__edit() {
-    fzf -m --select-1 --exit-0 | xargs -o $EDITOR
+    fzf_zsh__find_cmd | fzf -m --select-1 --exit-0 --scheme=path | xargs -o $EDITOR
 }
 
 function fzf_zsh__exec_history() {
-    local cmd=$(fc -l -1000 | fzf +m +s --tac | sed 's/ *[0-9]* *//')
+    local cmd=$(fc -l -1000 | fzf +m +s --tac  --scheme=history | sed 's/ *[0-9]* *//')
     if [ -n $cmd ]; then
         print -s $cmd
         eval $cmd
